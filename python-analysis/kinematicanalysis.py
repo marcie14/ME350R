@@ -296,6 +296,7 @@ def animateSixBar(links, thetas):
 
 
 
+########## MAIN ##########
 
 
     
