@@ -9,6 +9,7 @@ Created on Sun 31 Mar
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import numerical
 
 class FourBarVisualize():
     
@@ -103,28 +104,30 @@ class FourBarVisualize():
         if disc_4 < 0 or disc_3 < 0:
             print (B,A,C,E,D,F)
             print (disc_3,disc_4)
+            print('rip2')
             raise SystemExit('Error: This function does not handle imaginary roots')
         
         # Solve for thetas 
         th_4 = 2*np.arctan2((-B + delta*np.sqrt(B**2-4*A*C)),(2*A))
         th_3 = 2*np.arctan2((-E + delta*np.sqrt(E**2-4*D*F)),(2*D))
-        
-        print(th_1,th_2,th_3,th_4)
-        
+
+        #print(th_1,th_2,th_3,th_4)
+
         return [np.rad2deg(x) for x in [th_1,th_2,th_3,th_4]]
     
     def fourbarvel(self,th_vec,omega_2):
         th_vec = [np.deg2rad(x) for x in th_vec]
-        
+        #print(np.rad2deg(th_vec[2]),th_vec[3],th_vec[2]-th_vec[3])
         # solve for the angular velocities
         omega_3 = omega_2*self.l_vec[1]/self.l_vec[2]*(np.sin(th_vec[3]-th_vec[1]))/(np.sin(th_vec[2]-th_vec[3]))
         try:
             omega_4 = omega_2*self.l_vec[1]/self.l_vec[3]*(np.sin(th_vec[1]-th_vec[2]))/(np.sin(th_vec[3]-th_vec[2]))
         except ZeroDivisionError:
-            omega_4 = 0
+            print('rip')
+            omega_4 = float(0)
         except Exception as e:
             print(f"An error occurred: {e}")
-            omega_4 = 0
+            omega_4 = float(0)
         # solve for the absolute velocities
         VA = [self.l_vec[1]*omega_2*x for x in [-np.sin(th_vec[1]),np.cos(th_vec[1])]]
         VBA = [self.l_vec[2]*omega_3*x for x in [-np.sin(th_vec[2]),np.cos(th_vec[2])]]
@@ -162,115 +165,28 @@ class FourBarVisualize():
         # Save as GIF
         anim.save('anim2.gif', dpi=200, writer='pillow') 
     
-def plotFourBar(links, thetas, index):
-    assert len(links) == 4, "There should be 4 link lengths"
-    assert len(thetas) == 4, "There should be 4 lists of angles"
-
-    # Convert angles to radians
-    thetas = [np.deg2rad(theta[index]) for theta in thetas]
-
-    # Calculate positions
-    x_positions = [0] 
-    y_positions = [0] 
-
-    for i in range(3):
-        x_positions.append(x_positions[-1] + links[i]*np.cos(thetas[i]))
-        y_positions.append(y_positions[-1] + links[i]*np.sin(thetas[i]))
-
-    # For the last link, we need to close the loop
-    x_positions.append(0)
-    y_positions.append(0)
-
-    # Plot
-    plt.figure()
-    for i in range(4):
-        plt.plot([x_positions[i], x_positions[i+1]], [y_positions[i], y_positions[i+1]], 'o-', lw=2)
-    plt.xlim(min(x_positions)-1, max(x_positions)+1)
-    plt.ylim(min(y_positions)-1, max(y_positions)+1)
-    plt.gca().set_aspect('equal', adjustable='box')
-    plt.show()
-    
-def animateFourBar(links, thetas):
-    fig, ax = plt.subplots()
-
-    # Initial positions
-    x_positions = [0] 
-    y_positions = [0] 
-
-    for i in range(3):
-        x_positions.append(x_positions[-1] + links[i]*np.cos(np.deg2rad(thetas[i][0])))
-        y_positions.append(y_positions[-1] + links[i]*np.sin(np.deg2rad(thetas[i][0])))
-
-    # For the last link, we need to close the loop
-    x_positions.append(0)
-    y_positions.append(0)
-
-    # Plot
-    line, = ax.plot(x_positions, y_positions, 'o-', lw=2)
-
-    def update(frame):
-        # Update thetas
-        thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
-
-        # Calculate new positions
-        x_positions = [0] 
-        y_positions = [0] 
-
-        for i in range(3):
-            x_positions.append(x_positions[-1] + links[i]*np.cos(thetas_frame[i]))
-            y_positions.append(y_positions[-1] + links[i]*np.sin(thetas_frame[i]))
-
-        # For the last link, we need to close the loop
-        x_positions.append(0)
-        y_positions.append(0)
-        
-        ax.set_xlim(min(x_positions)-1, max(x_positions)+1)
-        ax.set_ylim(min(y_positions)-1, max(y_positions)+1)
-
-        # Update line data
-        line.set_data(x_positions, y_positions)
-        return line,
-
-    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True)
-
-    plt.show()
     
 if __name__ == '__main__':
     l_2 = 2.0
-    mechanism = FourBarVisualize(l_2) # Creates an instance with link 2 of length 2.0
+    #mechanism = FourBarVisualize(l_2) # Creates an instance with link 2 of length 2.0
     hy = np.hypot(1.821, 0.4476)
     mechanism = FourBarVisualize(l_2)
     mechanism.l_vec = [1.875, 3, 4, 3.06]
-    th1, th2, th3, th4 = mechanism.fourbarpos(0,np.linspace(0,361,1),0)
-    
-    links = [1.875, 3, 4, 3.06]
-    thetas = [[0, 0, 0], [50, 60, 75], [175, 180, 190], [30, 20, 10]]
-    print (th1, th2, th3, th4)
-    # thetas = [th1, th2, th3, th4]
-    # print (thetas)
-    plotFourBar(links, thetas, 0)
-    animateFourBar(links, thetas)
-    
-    
-    
-    
-    mechanism = FourBarVisualize()
+    th1, th2, th3, th4 = mechanism.fourbarpos(0,np.linspace(0,361,1),-1)
     (omega_vec_out,VA,VBA,VB) = mechanism.fourbarvel([th1, th2, th3, th4], -1)
     mechanism.offset = np.rad2deg(np.arctan2(0.4476,1.821))
     mechanism.animate()
 
     
-    
-    
-    
     mechanism2 = FourBarVisualize()
     mechanism2.l_vec = [hy,3.07181611,3.99108686,3.05088475]
     print('b')
-    print('th4',th1, th2, th3, th4)
-    th1, th2, th3, th4 = mechanism2.fourbarpos(0,th4,0)
+    #print('th4',th1, th2, th3, th4)
+    th1_2, th2_2, th3_2, th4_2 = mechanism2.fourbarpos(0,th4 - 39.01,-1)
+    #print(th1, th2, th3, th4)
     mechanism2.offset = - np.rad2deg(np.arctan2(0.4476,1.821))
     mechanism2.omega_2 = omega_vec_out[3]
-    mechanism2.animate()
-    mechanism2.animate()
-    
-    
+    #mechanism2.animate()
+    #mechanism2.animate()
+
+    print(numerical.numerical(th2,hy,3.07181611,3.99108686,3.05088475))
