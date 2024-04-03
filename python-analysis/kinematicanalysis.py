@@ -109,6 +109,8 @@ class FourBarVisualize():
         th_4 = 2*np.arctan2((-B + delta*np.sqrt(B**2-4*A*C)),(2*A))
         th_3 = 2*np.arctan2((-E + delta*np.sqrt(E**2-4*D*F)),(2*D))
         
+        print(th_1,th_2,th_3,th_4)
+        
         return [np.rad2deg(x) for x in [th_1,th_2,th_3,th_4]]
     
     def fourbarvel(self,th_vec,omega_2):
@@ -160,12 +162,12 @@ class FourBarVisualize():
         # Save as GIF
         anim.save('anim2.gif', dpi=200, writer='pillow') 
     
-def plotFourBar(links, thetas):
+def plotFourBar(links, thetas, index):
     assert len(links) == 4, "There should be 4 link lengths"
-    assert len(thetas) == 4, "There should be 4 angles"
+    assert len(thetas) == 4, "There should be 4 lists of angles"
 
     # Convert angles to radians
-    thetas = [np.deg2rad(theta) for theta in thetas]
+    thetas = [np.deg2rad(theta[index]) for theta in thetas]
 
     # Calculate positions
     x_positions = [0] 
@@ -188,8 +190,47 @@ def plotFourBar(links, thetas):
     plt.gca().set_aspect('equal', adjustable='box')
     plt.show()
     
-def animate
-    
+def animateFourBar(links, thetas):
+    fig, ax = plt.subplots()
+
+    # Initial positions
+    x_positions = [0] 
+    y_positions = [0] 
+
+    for i in range(3):
+        x_positions.append(x_positions[-1] + links[i]*np.cos(np.deg2rad(thetas[i][0])))
+        y_positions.append(y_positions[-1] + links[i]*np.sin(np.deg2rad(thetas[i][0])))
+
+    # For the last link, we need to close the loop
+    x_positions.append(0)
+    y_positions.append(0)
+
+    # Plot
+    line, = ax.plot(x_positions, y_positions, 'o-', lw=2)
+
+    def update(frame):
+        # Update thetas
+        thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
+
+        # Calculate new positions
+        x_positions = [0] 
+        y_positions = [0] 
+
+        for i in range(3):
+            x_positions.append(x_positions[-1] + links[i]*np.cos(thetas_frame[i]))
+            y_positions.append(y_positions[-1] + links[i]*np.sin(thetas_frame[i]))
+
+        # For the last link, we need to close the loop
+        x_positions.append(0)
+        y_positions.append(0)
+
+        # Update line data
+        line.set_data(x_positions, y_positions)
+        return line,
+
+    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True)
+
+    plt.show()
     
 if __name__ == '__main__':
     l_2 = 2.0
@@ -198,25 +239,34 @@ if __name__ == '__main__':
     mechanism = FourBarVisualize(l_2)
     mechanism.l_vec = [1.875, 3, 4, 3.06]
     th1, th2, th3, th4 = mechanism.fourbarpos(0,np.linspace(0,361,1),0)
-    th1 = [th1]
-    links = [1.875, 3, 4, 3.06]
-    thetas = [0, 50, 175, 30]
     
+    links = [1.875, 3, 4, 3.06]
+    thetas = [[0, 0, 0], [50, 60, 75], [175, 180, 190], [30, 20, 10]]
+    print (th1, th2, th3, th4)
     # thetas = [th1, th2, th3, th4]
-    print (thetas)
-    # (omega_vec_out,VA,VBA,VB) = mechanism.fourbarvel([th1, th2, th3, th4], -1)
-    # mechanism.offset = np.rad2deg(np.arctan2(0.4476,1.821))
-    # mechanism.animate()
-
+    # print (thetas)
+    plotFourBar(links, thetas, 0)
     animateFourBar(links, thetas)
     
-    # mechanism2 = FourBarVisualize()
-    # mechanism2.l_vec = [hy,3.07181611,3.99108686,3.05088475]
-    # print('b')
-    # print('th4',th1, th2, th3, th4)
-    # th1, th2, th3, th4 = mechanism2.fourbarpos(0,th4,0)
-    # mechanism2.offset = - np.rad2deg(np.arctan2(0.4476,1.821))
-    # mechanism2.omega_2 = omega_vec_out[3]
-    # # mechanism2.animate()
-    # #mechanism2.animate()
+    
+    
+    
+    mechanism = FourBarVisualize()
+    (omega_vec_out,VA,VBA,VB) = mechanism.fourbarvel([th1, th2, th3, th4], -1)
+    mechanism.offset = np.rad2deg(np.arctan2(0.4476,1.821))
+    mechanism.animate()
+
+    
+    
+    
+    
+    mechanism2 = FourBarVisualize()
+    mechanism2.l_vec = [hy,3.07181611,3.99108686,3.05088475]
+    print('b')
+    print('th4',th1, th2, th3, th4)
+    th1, th2, th3, th4 = mechanism2.fourbarpos(0,th4,0)
+    mechanism2.offset = - np.rad2deg(np.arctan2(0.4476,1.821))
+    mechanism2.omega_2 = omega_vec_out[3]
+    mechanism2.animate()
+    mechanism2.animate()
     
