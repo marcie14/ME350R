@@ -1,95 +1,44 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Sun 31 Mar
-
-@author: Meredith, Alexa
-"""
-
-# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+import time
 
-class FourBarVisualize():
+
+# given
+ground = np.hypot(1.821, 0.4476)
+l1 = ground # ground 1
+l2 = 3.04115625 # crank 1
+l3 = 4 # coupler 1
+l4 =  3.06065793 # ternary 1
+
+l5 = 3.06065793 # ternary 2
+l6 = 4 # coupler 2
+l7 = 3.04115625 # end
+l8 = ground
+
+# ground geometry (for plotting)
+verts = [[0,0], [3.64, 0], [1.821, 0.4476], [0,0]]
+
+origin_y = 0.4476
+
+omega_2 = -1
+
+def fourbarpos(a,b,c,d,th_1,th2,delta=-1):
+    th_3_arr = []
+    th_4_arr = []
+    print(th2)
+
+    for i in (th2):
     
-    # Constructor
-    def __init__(self, length = 2.0):
-        self.l_vec = [2.23, 3, 3.94, 3]    # length of link 2
-        self.omega_2 = -1.0     # constant rad/sec clockwise
-        self.offset = np.rad2deg(np.arctan2(0.4476,1.821))
-        
-        self.fig, self.ax = plt.subplots(1,1,figsize=(6,6))   # New figure
-        self.ax.set_aspect('equal')
-        self.fig.set_tight_layout(True)
-        self.ax.set_xlim([-3*length,3*length])
-        self.ax.set_ylim([-3*length,3*length])
-    
-    def fourBarPlot(self,th_2_in,showVelArrows=True):
-        self.ax.clear()
-        
-        th_pos_soln = self.fourbarpos(0,th_2_in,-1)
-        
-        th_pos_soln = [self.getBoundedAngle(x+self.offset) for x in th_pos_soln]
-        (omega_vec_out,VA,VBA,VB) = self.fourbarvel(th_pos_soln,self.omega_2)
-        
-        # Get position of A with respect to origin at O2 (GCS)
-        th_pos_soln = [np.deg2rad(x) for x in th_pos_soln]
-        R_AO2X = self.l_vec[1]*np.cos(th_pos_soln[1])
-        R_AO2Y = self.l_vec[1]*np.sin(th_pos_soln[1])
-
-        # Get position of B with respect to A
-        R_BAX = self.l_vec[2]*np.cos(th_pos_soln[2])
-        R_BAY = self.l_vec[2]*np.sin(th_pos_soln[2])
-
-        # Get position of B in the GCS
-        R_BX = R_AO2X + R_BAX
-        R_BY = R_AO2Y + R_BAY
-
-        # Get position of O4 in GCS
-        R_O4X = self.l_vec[0]*np.cos(th_pos_soln[0])
-        R_O4Y = self.l_vec[0]*np.sin(th_pos_soln[0])
-        
-        self.ax.set_xlim([-8,8])
-        self.ax.set_ylim([-8,8])
-        self.ax.set_aspect('equal')
-        
-        self.ax.plot([0,R_AO2X],[0,R_AO2Y],color='red', linestyle='solid')                       # Link 2
-        self.ax.scatter([R_AO2X],[R_AO2Y], s=200, marker='o', facecolors='none', edgecolors='r') # Joint A
-        self.ax.scatter([0],[0], s=200, marker='o', facecolors='none', edgecolors='r')     # Joint O_2
-        
-        self.ax.plot([R_AO2X,R_BX],[R_AO2Y,R_BY],color='blue', linestyle='solid')                       # Link 3
-        self.ax.scatter([R_BX],[R_BY], s=200, marker='o', facecolors='none', edgecolors='b') # Joint B
-        
-        self.ax.plot([R_O4X,R_BX],[R_O4Y,R_BY],color='green', linestyle='solid')                       # Link 4
-        self.ax.scatter([R_O4X],[R_O4Y], s=200, marker='o', facecolors='none', edgecolors='g') # Joint O4
-        self.ax.plot([0,R_O4X],[0,R_O4Y],color='black', linestyle='solid')                       # Link 1
-
-        # If we want to see the velocity vector (with arrows!)
-        if showVelArrows:
-            self.ax.arrow(R_AO2X,R_AO2Y,VA[0],VA[1],head_width=0.1,width=0.001,length_includes_head=True,linestyle='dashed',color='red',overhang=1.0)
-            self.ax.arrow(R_BX,R_BY,VBA[0],VBA[1],head_width=0.1,width=0.001,length_includes_head=True,linestyle='dashed',color='blue',overhang=1.0)
-            self.ax.arrow(R_BX,R_BY,VB[0],VB[1],head_width=0.1,width=0.001,length_includes_head=True,linestyle='dashed',color='green',overhang=1.0)
-   
-        
-        # Centers the axes
-        self.ax.spines['left'].set_position('center') 
-        self.ax.spines['bottom'].set_position('center')
-        self.ax.spines['right'].set_color('none')
-        self.ax.spines['top'].set_color('none')
-
-    def fourbarpos(self,th_1,th_2,delta):
-        
         # K constants based on link lengths
-        K1 = self.l_vec[0]/self.l_vec[1]
-        K2 = self.l_vec[0]/self.l_vec[3]
-        K3 = (self.l_vec[1]**2 - self.l_vec[2]**2 + self.l_vec[3]**2 + self.l_vec[0]**2)/(2 * self.l_vec[1] * self.l_vec[3])
-        K4 = self.l_vec[0]/self.l_vec[2]
-        K5 = (self.l_vec[3]**2 - self.l_vec[0]**2 - self.l_vec[1]**2 - self.l_vec[2]**2)/(2 * self.l_vec[1] * self.l_vec[2])
+        K1 = d/a
+        K2 = d/c 
+        K3 = (a ** 2 - b ** 2 + c ** 2 + d ** 2) / (2 * a * c)
+        K4 = d/b
+        K5 = (c ** 2 - d ** 2 - a ** 2 - b ** 2)/(2 * a * b)
         
-        
-        # Quadratic constants
         th_1 = np.deg2rad(th_1)
-        th_2 = np.deg2rad(th_2)  # converting to rads
+        th_2 = np.deg2rad(i)  # converting to rads
         A = -K1 - K2*np.cos(th_2) + K3 + np.cos(th_2)
         B = -2*np.sin(th_2)
         C = K1 - K2*np.cos(th_2) + K3 - np.cos(th_2)
@@ -103,65 +52,18 @@ class FourBarVisualize():
         if disc_4 < 0 or disc_3 < 0:
             print (B,A,C,E,D,F)
             print (disc_3,disc_4)
+            print('rip2')
             raise SystemExit('Error: This function does not handle imaginary roots')
         
         # Solve for thetas 
         th_4 = 2*np.arctan2((-B + delta*np.sqrt(B**2-4*A*C)),(2*A))
         th_3 = 2*np.arctan2((-E + delta*np.sqrt(E**2-4*D*F)),(2*D))
-        
-        print(th_1,th_2,th_3,th_4)
-        
-        return [np.rad2deg(x) for x in [th_1,th_2,th_3,th_4]]
-    
-    def fourbarvel(self,th_vec,omega_2):
-        th_vec = [np.deg2rad(x) for x in th_vec]
-        
-        # solve for the angular velocities
-        omega_3 = omega_2*self.l_vec[1]/self.l_vec[2]*(np.sin(th_vec[3]-th_vec[1]))/(np.sin(th_vec[2]-th_vec[3]))
-        try:
-            omega_4 = omega_2*self.l_vec[1]/self.l_vec[3]*(np.sin(th_vec[1]-th_vec[2]))/(np.sin(th_vec[3]-th_vec[2]))
-        except ZeroDivisionError:
-            omega_4 = 0
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            omega_4 = 0
-        # solve for the absolute velocities
-        VA = [self.l_vec[1]*omega_2*x for x in [-np.sin(th_vec[1]),np.cos(th_vec[1])]]
-        VBA = [self.l_vec[2]*omega_3*x for x in [-np.sin(th_vec[2]),np.cos(th_vec[2])]]
-        VB = [self.l_vec[3]*omega_4*x for x in [-np.sin(th_vec[3]),np.cos(th_vec[3])]]
 
-        omega_vec_out = [0,omega_2,omega_3,omega_4]
-        return (omega_vec_out,VA,VBA,VB)
-        
-    def getBoundedAngle(self,angle):
-        if angle < 0:
-            return 360+angle
-        elif angle > 360:
-            return angle-360
-        else:
-            return angle
-    
-    # Function to animate the crank
-    def animate(self):
-             
-        # Runs on the first animation frame
-        def init():
-            self.ax.clear()
-            
-        # Adds the four bar plotting function to the animation 
-        def getFrames(frames):
-            self.fourBarPlot(frames-self.offset)
-            
-        
-        # Animation function
-        #delay_interval = round(1/abs(self.omega_2*180/np.pi)*2*1000)
-        delay_interval = 35
-        theta_frames = np.linspace(0,361,361)
-        anim = FuncAnimation(self.fig, getFrames, init_func=init, frames=theta_frames[::-1], interval=delay_interval,repeat_delay=100)
-    
-        # Save as GIF
-        anim.save('anim2.gif', dpi=200, writer='pillow') 
-    
+        th_3_arr.append(np.rad2deg(th_3))
+        th_4_arr.append(np.rad2deg(th_4))
+
+    return np.zeros(361), th2, np.array(th_3_arr), np.array(th_4_arr)
+
 def plotFourBar(links, thetas, index):
     assert len(links) == 4, "There should be 4 link lengths"
     assert len(thetas) == 4, "There should be 4 lists of angles"
@@ -170,43 +72,64 @@ def plotFourBar(links, thetas, index):
     thetas = [np.deg2rad(theta[index]) for theta in thetas]
 
     # Calculate positions
-    x_positions = [0] 
+    x_positions = [0]
     y_positions = [0] 
 
-    for i in range(3):
-        x_positions.append(x_positions[-1] + links[i]*np.cos(thetas[i]))
-        y_positions.append(y_positions[-1] + links[i]*np.sin(thetas[i]))
+    for i in range(2):
+        x_positions.append(x_positions[i-1] + links[i]*np.cos(thetas[i]))
+        y_positions.append(y_positions[i-1] + links[i]*np.sin(thetas[i]))
 
-    # For the last link, we need to close the loop
+    # # For the last link, we need to close the loop
+    x_positions.append(1.821)
+    y_positions.append(0.4476)
+    
     x_positions.append(0)
     y_positions.append(0)
 
+
+    print(x_positions)
+    print(y_positions)
+    
     # Plot
     plt.figure()
+    
+    # plot ground triangle
+    gndX, gndY = zip(*verts)
+    plt.plot(gndX, gndY, 'r-', lw=2)
+    plt.fill(gndX, gndY, 'r', alpha=0.3)
+    
     for i in range(4):
         plt.plot([x_positions[i], x_positions[i+1]], [y_positions[i], y_positions[i+1]], 'o-', lw=2)
-    plt.xlim(min(x_positions)-1, max(x_positions)+1)
-    plt.ylim(min(y_positions)-1, max(y_positions)+1)
+    
+    plt.xlim(-4, 8)
+    plt.ylim(-6, 6)
     plt.gca().set_aspect('equal', adjustable='box')
+    plt.tight_layout()
+    plt.legend(['Ground', 'Ground', 'Link 2', 'Link 3', 'Link 4', 'Link 1'])
+    plt.grid()
     plt.show()
     
 def animateFourBar(links, thetas):
     fig, ax = plt.subplots()
-
+    ax.set_aspect('equal')
     # Initial positions
-    x_positions = [0] 
-    y_positions = [0] 
+    x_positions = [0]
+    y_positions = [0]
 
-    for i in range(3):
-        x_positions.append(x_positions[-1] + links[i]*np.cos(np.deg2rad(thetas[i][0])))
-        y_positions.append(y_positions[-1] + links[i]*np.sin(np.deg2rad(thetas[i][0])))
+    for i in range(2):
+        x_positions.append(x_positions[i] + links[i]*np.cos(thetas[i]))
+        y_positions.append(y_positions[i] + links[i]*np.sin(thetas[i]))
 
-    # For the last link, we need to close the loop
-    x_positions.append(0)
-    y_positions.append(0)
+    # # For the last link, we need to close the loop
+    # x_positions.append(1.821)
+    # y_positions.append(0.4476)
+
+    # Set the x and y limits
+    ax.set_xlim(-4, 8)
+    ax.set_ylim(-6, 6)
 
     # Plot
-    line, = ax.plot(x_positions, y_positions, 'o-', lw=2)
+    line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
 
     def update(frame):
         # Update thetas
@@ -215,62 +138,41 @@ def animateFourBar(links, thetas):
         # Calculate new positions
         x_positions = [0] 
         y_positions = [0] 
+        
+        # plot ground triangle
+        gndX, gndY = zip(*verts)
+        plt.plot(gndX, gndY, 'r-', lw=2)
+        plt.fill(gndX, gndY, 'r', alpha=0.3)
+        
+        plt.grid()
+        for i in range(2):
+            x_positions.append(x_positions[i] + links[i]*np.cos(thetas_frame[i]))
+            y_positions.append(y_positions[i] + links[i]*np.sin(thetas_frame[i]))
 
-        for i in range(3):
-            x_positions.append(x_positions[-1] + links[i]*np.cos(thetas_frame[i]))
-            y_positions.append(y_positions[-1] + links[i]*np.sin(thetas_frame[i]))
 
         # For the last link, we need to close the loop
+        x_positions.append(1.821)
+        y_positions.append(0.4476)
+    
         x_positions.append(0)
         y_positions.append(0)
         
-        ax.set_xlim(min(x_positions)-1, max(x_positions)+1)
-        ax.set_ylim(min(y_positions)-1, max(y_positions)+1)
-
+        # print(x_positions[2], y_positions[2])
+        # time.sleep(0.2)
         # Update line data
         line.set_data(x_positions, y_positions)
         return line,
-
-    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True)
+    
+    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True, interval = 10)
 
     plt.show()
-    
-if __name__ == '__main__':
-    l_2 = 2.0
-    mechanism = FourBarVisualize(l_2) # Creates an instance with link 2 of length 2.0
-    hy = np.hypot(1.821, 0.4476)
-    mechanism = FourBarVisualize(l_2)
-    mechanism.l_vec = [1.875, 3, 4, 3.06]
-    th1, th2, th3, th4 = mechanism.fourbarpos(0,np.linspace(0,361,1),0)
-    
-    links = [1.875, 3, 4, 3.06]
-    thetas = [[0, 0, 0], [50, 60, 75], [175, 180, 190], [30, 20, 10]]
-    print (th1, th2, th3, th4)
-    # thetas = [th1, th2, th3, th4]
-    # print (thetas)
-    plotFourBar(links, thetas, 0)
-    animateFourBar(links, thetas)
-    
-    
-    
-    
-    mechanism = FourBarVisualize()
-    (omega_vec_out,VA,VBA,VB) = mechanism.fourbarvel([th1, th2, th3, th4], -1)
-    mechanism.offset = np.rad2deg(np.arctan2(0.4476,1.821))
-    mechanism.animate()
 
+def plotSixBar():
     
     
-    
-    
-    mechanism2 = FourBarVisualize()
-    mechanism2.l_vec = [hy,3.07181611,3.99108686,3.05088475]
-    print('b')
-    print('th4',th1, th2, th3, th4)
-    th1, th2, th3, th4 = mechanism2.fourbarpos(0,th4,0)
-    mechanism2.offset = - np.rad2deg(np.arctan2(0.4476,1.821))
-    mechanism2.omega_2 = omega_vec_out[3]
-    mechanism2.animate()
-    mechanism2.animate()
-    
-    
+th1, th2, th3, th4 = (fourbarpos(l2,l3,l4,l1,0,np.linspace(0,361,361)))
+th1 = [13.8094803531 for x in th1]
+th5, th6, th7, th8 = (fourbarpos(l5,l6,l7,l8,0,th4 - 39.01))
+
+plotFourBar([l2, l3, l4, l1], [th2, th3, th4, th1], 50)
+animateFourBar([l2, l3, l4, l1], [th2, th3, th4, th1])
