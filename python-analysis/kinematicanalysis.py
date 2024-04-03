@@ -269,10 +269,11 @@ def animateSixBar(links, thetas):
         # x_positions.append(0)
         # y_positions.append(0)
         # print('x pos ' + str(len(x_positions)))
-        for i in range(3, 5):
+        print('test', links[4])
+        for i in range(4, 6):
             
-            x_positions.append(x_positions[i] + links[i+1]*np.cos(thetas_frame[i+1]))
-            y_positions.append(y_positions[i] + links[i+1]*np.sin(thetas_frame[i+1]))
+            x_positions.append(x_positions[i-1] + links[i]*np.cos(thetas_frame[i]))
+            y_positions.append(y_positions[i-1] + links[i]*np.sin(thetas_frame[i]))
     
         # print('x pos ' + str(len(x_positions)))
         print(x_positions[3], y_positions[3], np.hypot(x_positions[3], y_positions[3]))
@@ -299,7 +300,7 @@ def animateSixBar(links, thetas):
 
     
 th1, th2, th3, th4 = (fourbarpos(l2,l3,l4,l1,0,np.linspace(0,361,361)))
-th1 = [13.8094803531 for x in th1]
+th1 = [13.8094803531 for x in th1] # angle of ground
 links1 = [l2, l3, l4, l1]
 thetas1 = [th2, th3, th4, th1]
 # plotFourBar(links1, thetas1, 50)
@@ -312,7 +313,8 @@ links2 = [l6, l7, l8, l5]
 # plotFourBar(links2, thetas2, 50)
 # animateFourBar(links2, thetas2)
 
-links3 = [l2, l3, l4, l1, l6, l7, l8, l5]
+links3 = [l2, l3, l4, l1, l5, l6, l7, l8] # note that position of l5 is not the same as th5 in list below
+print(links3)
 thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
-plotSixBar(links3, thetas3, 50)
+# plotSixBar(links3, thetas3, 50)
 animateSixBar(links3, thetas3)
