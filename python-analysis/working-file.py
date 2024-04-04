@@ -314,6 +314,7 @@ def gptanimateSixBar(links, thetas, velocities):
 
     ax.set_xlim(-4, 8)
     ax.set_ylim(-4, 6)
+    Q = ax.quiver([], [], [], [], angles='xy', scale_units='xy', scale=1)
 
     line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
 
@@ -352,16 +353,18 @@ def gptanimateSixBar(links, thetas, velocities):
         x_positions.append(3.64293832)
         y_positions.append(0)
 
-        for i in range(len(x_positions) - 1):
-            # Calculate the velocity components
-            u = velocity_frame[i]
-            v = velocity_frame[i]
+        Q.set_UVC(velocity_frame[0], velocity_frame[0])
+        # Q.set_offsets(np.array([x_positions, y_positions]).T)
+        # for i in range(len(x_positions) - 1):
+        #     # Calculate the velocity components
+        #     u = velocity_frame[i]
+        #     v = velocity_frame[i]
 
-            # Plot the arrow
-            plt.quiver(x_positions[i], y_positions[i], u, v, angles='xy', scale_units='xy', scale=1)
+        #     # Plot the arrow
+        #     plt.quiver(x_positions[i], y_positions[i], u, v, angles='xy', scale_units='xy', scale=1)
         
         line.set_data(x_positions, y_positions)
-        return line,
+        return line, Q,
 
     ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True, interval = 10)
 
@@ -376,7 +379,7 @@ th1, th2, th3, th4 = (fourbarpos(l2,l3,l4,l1,0,np.linspace(0,361,361)))
 th1 = [13.8094803531 for x in th1] # angle of ground
 links1 = [l2, l3, l4, l1]
 thetas1 = [th2, th3, th4, th1]
-plotFourBar(links1, thetas1, 113)
+# plotFourBar(links1, thetas1, 113)
 # animateFourBar(links1, thetas1)
 
 
@@ -401,5 +404,5 @@ vel6 = [1 for x in range(len(th6))]
 vel7 = [1 for x in range(len(th7))]
 
 vels = [vel2, vel3, vel4, vel5, vel6, vel7]
-# gptanimateSixBar(links3, thetas3, vels)
+gptanimateSixBar(links3, thetas3, vels)
 

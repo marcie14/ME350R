@@ -367,7 +367,7 @@ th1, th2, th3, th4 = (fourbarpos(l2,l3,l4,l1,0,np.linspace(0,361,361)))
 th1 = [13.8094803531 for x in th1] # angle of ground
 links1 = [l2, l3, l4, l1]
 thetas1 = [th2, th3, th4, th1]
-# plotFourBar(links1, thetas1, 50)
+plotFourBar(links1, thetas1, 113)
 # animateFourBar(links1, thetas1)
 
 
@@ -385,4 +385,4 @@ thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
 # animateSixBar(links3, thetas3)
 
 
-gptanimateSixBar(links3, thetas3)
+# gptanimateSixBar(links3, thetas3)
