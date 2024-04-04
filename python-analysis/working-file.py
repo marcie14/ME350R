@@ -353,8 +353,12 @@ def gptanimateSixBar(links, thetas, velocities):
         x_positions.append(3.64293832)
         y_positions.append(0)
 
-        Q.set_UVC(velocity_frame[0], velocity_frame[0])
-        # Q.set_offsets(np.array([x_positions, y_positions]).T)
+        U = [vel[0] for vel in velocity_frame]
+        V = [vel[1] for vel in velocity_frame]
+        print(len(U), len(V))
+        print(len(x_positions), len(y_positions))
+        Q.set_UVC(U, V)
+        Q.set_offsets(np.array([x_positions, y_positions]).T)
         # for i in range(len(x_positions) - 1):
         #     # Calculate the velocity components
         #     u = velocity_frame[i]
@@ -396,13 +400,14 @@ thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
 # plotSixBar(links3, thetas3, 50)
 # animateSixBar(links3, thetas3)
 
-vel2 = [1 for x in range(len(th2))]
-vel3 = [1 for x in range(len(th3))]
-vel4 = [1 for x in range(len(th4))]
-vel5 = [1 for x in range(len(th5))]
-vel6 = [1 for x in range(len(th6))]
-vel7 = [1 for x in range(len(th7))]
+vel1 = [[1, 1] for x in range(len(th1))]
+vel2 = [[1, 1] for x in range(len(th2))]
+vel3 = [[1, 1] for x in range(len(th3))]
+vel4 = [[1, 1] for x in range(len(th4))]
+vel5 = [[1, 1] for x in range(len(th5))]
+vel6 = [[1, 1] for x in range(len(th6))]
+vel7 = [[1, 1] for x in range(len(th7))]
 
-vels = [vel2, vel3, vel4, vel5, vel6, vel7]
+vels = [vel2, vel3, vel4, vel5, vel6, vel7, vel1]
 gptanimateSixBar(links3, thetas3, vels)
 
