@@ -300,7 +300,7 @@ def animateSixBar(links, thetas):
 
 
 
-def gptanimateSixBar(links, thetas):
+def gptanimateSixBar(links, thetas, velocities):
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
     # Initial positions
@@ -313,13 +313,14 @@ def gptanimateSixBar(links, thetas):
             y_positions.append(y_positions[i] + links[i]*np.sin(thetas[i][j]))
 
     ax.set_xlim(-4, 8)
-    ax.set_ylim(-6, 6)
+    ax.set_ylim(-4, 6)
 
     line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
 
     def update(frame):
         # thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
         thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
+        velocity_frame = [vel[frame] for vel in velocities]
         print(links)
         # thetas_frame = [list(x) for x in zip(*thetas_frame)]
 
@@ -351,6 +352,14 @@ def gptanimateSixBar(links, thetas):
         x_positions.append(3.64293832)
         y_positions.append(0)
 
+        for i in range(len(x_positions) - 1):
+            # Calculate the velocity components
+            u = velocity_frame[i]
+            v = velocity_frame[i]
+
+            # Plot the arrow
+            plt.quiver(x_positions[i], y_positions[i], u, v, angles='xy', scale_units='xy', scale=1)
+        
         line.set_data(x_positions, y_positions)
         return line,
 
@@ -367,7 +376,7 @@ th1, th2, th3, th4 = (fourbarpos(l2,l3,l4,l1,0,np.linspace(0,361,361)))
 th1 = [13.8094803531 for x in th1] # angle of ground
 links1 = [l2, l3, l4, l1]
 thetas1 = [th2, th3, th4, th1]
-# plotFourBar(links1, thetas1, 50)
+plotFourBar(links1, thetas1, 113)
 # animateFourBar(links1, thetas1)
 
 
@@ -375,7 +384,7 @@ th5, th6, th7, th8 = (fourbarpos(l5,l6,l7,l8,0,th4 - 39.01))
 # print(th4 - th6) # th6 is constant angle between ternary links
 links2 = [l5, l6, l7, l8] # note that position of l5 is not the same as th5 in list below
 thetas2 = [th6, th7, th8, th5]
-# plotFourBar(links2, thetas2, 50)
+# plotFourBar(links2, thetas2, 113)
 # animateFourBar(links2, thetas2)
 
 links3 = [l2, l3, l4, l1, l5, l6, l7, l8] # note that position of l5 is not the same as th5 in list below
@@ -384,5 +393,13 @@ thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
 # plotSixBar(links3, thetas3, 50)
 # animateSixBar(links3, thetas3)
 
+vel2 = [1 for x in range(len(th2))]
+vel3 = [1 for x in range(len(th3))]
+vel4 = [1 for x in range(len(th4))]
+vel5 = [1 for x in range(len(th5))]
+vel6 = [1 for x in range(len(th6))]
+vel7 = [1 for x in range(len(th7))]
 
-gptanimateSixBar(links3, thetas3)
+vels = [vel2, vel3, vel4, vel5, vel6, vel7]
+# gptanimateSixBar(links3, thetas3, vels)
+
