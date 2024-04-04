@@ -318,8 +318,10 @@ def gptanimateSixBar(links, thetas):
     line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
 
     def update(frame):
+        # thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
         thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
-        thetas_frame = [list(x) for x in zip(*thetas_frame)]
+        print(links)
+        # thetas_frame = [list(x) for x in zip(*thetas_frame)]
 
         x_positions = [0] 
         y_positions = [0] 
@@ -328,17 +330,24 @@ def gptanimateSixBar(links, thetas):
         plt.plot(gndX, gndY, 'r-', lw=2)
         plt.fill(gndX, gndY, 'r', alpha=0.3)
         plt.grid()
+        
+        print(f"Frame: {frame}, Length of thetas[0]: {len(thetas[0])}")
+        print(f"Length of thetas_frame: {len(thetas_frame)}")
+        print(f"Length of links: {len(links)}")
+        
         for i in range(2):
-            x_positions.append(x_positions[i] + links[i]*np.cos(thetas_frame[frame][i]))
-            y_positions.append(y_positions[i] + links[i]*np.sin(thetas_frame[frame][i]))
+            x_positions.append(x_positions[i] + links[i]*np.cos(thetas_frame[i]))
+            y_positions.append(y_positions[i] + links[i]*np.sin(thetas_frame[i]))
 
+        # hardcode the ground link
         x_positions.append(1.821)
         y_positions.append(0.4476)
 
         for i in range(4, 6):
-            x_positions.append(x_positions[i-1] + links[i]*np.cos(thetas_frame[frame][i]))
-            y_positions.append(y_positions[i-1] + links[i]*np.sin(thetas_frame[frame][i]))
+            x_positions.append(x_positions[i-1] + links[i]*np.cos(thetas_frame[i]))
+            y_positions.append(y_positions[i-1] + links[i]*np.sin(thetas_frame[i]))
 
+        # hardcode the ground link
         x_positions.append(3.64293832)
         y_positions.append(0)
 
@@ -377,4 +386,3 @@ thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
 
 
 gptanimateSixBar(links3, thetas3)
-
