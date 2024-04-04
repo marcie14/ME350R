@@ -65,6 +65,31 @@ def fourbarpos(a,b,c,d,th_1,th2,delta=-1):
 
     return np.zeros(361), th2, np.array(th_3_arr), np.array(th_4_arr)
 
+def fourbarvel(a,b,c,d,th_vec,omega_2):
+    
+    th_vec = [np.deg2rad(x) for x in th_vec]
+    omega_3 = np.array([0.0 for _ in range(len(th_vec[1]))])
+    omega_4 = np.array([0.0 for _ in range(len(th_vec[1]))])
+    VA = np.zeros((len(th_vec[1]), 2))
+    VBA = np.zeros((len(th_vec[1]), 2))
+    VB = np.zeros((len(th_vec[1]), 2))
+  
+    for i in range(len(th_vec[1])):
+      #print(omega_2[i]*(a/b)*(np.sin(th_vec[3][i]-th_vec[1][i]))/(np.sin(th_vec[2][i]-th_vec[3][i])))
+      #print(omega_2[i]*(a/c)*(np.sin(th_vec[1][i]-th_vec[2][i]))/(np.sin(th_vec[3][i]-th_vec[2][i])))
+      omega_3[i] = omega_2[i]*(a/b)*(np.sin(th_vec[3][i]-th_vec[1][i]))/(np.sin(th_vec[2][i]-th_vec[3][i]))
+      omega_4[i] = omega_2[i]*(a/c)*(np.sin(th_vec[1][i]-th_vec[2][i]))/(np.sin(th_vec[3][i]-th_vec[2][i]))
+
+      VA[i] = np.array([a*omega_2[i]*x for x in [-np.sin(th_vec[1][i]),np.cos(th_vec[1][i])]])
+      VBA[i] = np.array([b*omega_3[i]*x for x in [-np.sin(th_vec[2][i]),np.cos(th_vec[2][i])]])
+      VB[i] = np.array([c*omega_4[i]*x for x in [-np.sin(th_vec[3][i]),np.cos(th_vec[3][i])]])
+
+      print(i, omega_2[i],omega_3[i],omega_4[i],VA[i],VBA[i],VB[i])
+
+    omega_vec_out = [0,omega_2,omega_3,omega_4]
+    return (omega_vec_out,VA,VBA,VB)
+
+
 def plotFourBar(links, thetas, index):
     assert len(links) == 4, "There should be 4 link lengths"
     assert len(thetas) == 4, "There should be 4 lists of angles"
@@ -220,6 +245,8 @@ def plotSixBar(links, thetas, index):
     plt.grid()
     plt.show()
     
+
+
 def animateSixBar(links, thetas):
     fig, ax = plt.subplots()
     ax.set_aspect('equal')
@@ -232,88 +259,9 @@ def animateSixBar(links, thetas):
             x_positions.append(x_positions[i] + links[i]*np.cos(thetas[i][j]))
             y_positions.append(y_positions[i] + links[i]*np.sin(thetas[i][j]))
 
-    # # For the last link, we need to close the loop
-    # x_positions.append(1.821)
-    # y_positions.append(0.4476)
-
-    # Set the x and y limits
     ax.set_xlim(-4, 8)
     ax.set_ylim(-6, 6)
-    # print(1)
-    # Plot
-    line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
-    # print(type(thetas))
-    def update(frame):
-        # Update thetas
-        # print(frame)
-
-        thetas_frame = [np.deg2rad(theta[frame]) for theta in thetas]
-        thetas_frame = [list(x) for x in zip(*thetas_frame)]
-        print(thetas_frame[0][0])
-
-        # Calculate new positions
-        x_positions = [0] 
-        y_positions = [0] 
-        
-        # plot ground triangle
-        gndX, gndY = zip(*verts)
-        plt.plot(gndX, gndY, 'r-', lw=2)
-        plt.fill(gndX, gndY, 'r', alpha=0.3)
-        # print(2)
-        plt.grid()
-        for i in range(2):
-            x_positions.append(x_positions[i] + links[i]*np.cos(thetas_frame[frame][i]))
-            y_positions.append(y_positions[i] + links[i]*np.sin(thetas_frame[frame][i]))
-
-        # print(3)
-        # For the last link, we need to close the loop
-        x_positions.append(1.821)
-        y_positions.append(0.4476)
-    
-        # x_positions.append(0)
-        # y_positions.append(0)
-        # print('x pos ' + str(len(x_positions)))
-        # print('test', links[4])
-        for i in range(4, 6):
-            
-            x_positions.append(x_positions[i-1] + links[i]*np.cos(thetas_frame[frame][i]))
-            y_positions.append(y_positions[i-1] + links[i]*np.sin(thetas_frame[frame][i]))
-    
-    
-        # print('x pos ' + str(len(x_positions)))
-        # print(x_positions[3], y_positions[3], np.hypot(x_positions[3], y_positions[3]))
-        # print(len(x_positions))
-
-        x_positions.append(3.64293832)
-        y_positions.append(0)
-        # print(4)
-        
-        # print(x_positions[2], y_positions[2])
-        # time.sleep(0.2)
-        # Update line data
-        line.set_data(x_positions, y_positions)
-        return line,
-    
-    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True, interval = 10)
-
-    plt.show()
-
-
-
-def gptanimateSixBar(links, thetas):
-    fig, ax = plt.subplots()
-    ax.set_aspect('equal')
-    # Initial positions
-    x_positions = [0]
-    y_positions = [0]
-
-    for i in range(2):
-        for j in range(2):
-            x_positions.append(x_positions[i] + links[i]*np.cos(thetas[i][j]))
-            y_positions.append(y_positions[i] + links[i]*np.sin(thetas[i][j]))
-
-    ax.set_xlim(-4, 8)
-    ax.set_ylim(-6, 6)
+    plt.grid()
 
     line, = ax.plot(x_positions[0], y_positions[0], 'o-', lw=2)
 
@@ -329,7 +277,7 @@ def gptanimateSixBar(links, thetas):
         gndX, gndY = zip(*verts)
         plt.plot(gndX, gndY, 'r-', lw=2)
         plt.fill(gndX, gndY, 'r', alpha=0.3)
-        plt.grid()
+        
         
         print(f"Frame: {frame}, Length of thetas[0]: {len(thetas[0])}")
         print(f"Length of thetas_frame: {len(thetas_frame)}")
@@ -354,9 +302,12 @@ def gptanimateSixBar(links, thetas):
         line.set_data(x_positions, y_positions)
         return line,
 
-    ani = FuncAnimation(fig, update, frames=range(len(thetas[0])), blit=True, interval = 10)
+    ani = FuncAnimation(fig, update, repeat = False, frames=range(len(thetas[0])), blit=True, interval = 5)
 
-    plt.show()
+    # plt.show()
+    # save ani to file
+    ani.save('sixbar.gif', writer='imagemagick', fps=60)
+    
     return ani  # Return the animation object
 
 
@@ -385,4 +336,46 @@ thetas3 = [th2, th3, th4, th1, th6, th7, th8, th5]
 # animateSixBar(links3, thetas3)
 
 
-# gptanimateSixBar(links3, thetas3)
+animateSixBar(links3, thetas3)
+
+omega_2 = np.full(360, 1.0)
+
+
+vel = fourbarvel(l2,l3,l4,l1,[th1, th2, th3, th4],omega_2)
+
+
+vel2 = fourbarvel(l5,l6,l7,l8,[th5, th6, th7, th8],vel[0][3])
+
+plt.plot(th2, vel2[0][3])
+plt.xlabel('theta 2')
+plt.ylabel('angular velocity of theta 6')
+plt.title('θ2 vs ω6')
+plt.savefig('omega6_vs_th2.png')
+plt.show()
+
+rin = l2
+rout = l7
+
+w = omega_2/vel2[0][3]
+r = rin/rout
+
+plt.plot(th2, w*r)
+plt.xlabel('Theta 2')
+plt.title('Mechanical Advantage')
+plt.savefig('mech_adv.png')
+plt.show()
+
+'''
+for i in th4:
+    j, k, h = (numerical.numerical(i - 39.01,ground,3.07181611,3.99108686,3.05088475))
+
+
+#print('yo')
+#print(th7,th8)
+
+
+plt.plot(th6, th7)
+plt.plot(th6, th8)
+plt.legend('a','b')
+plt.show()
+'''
